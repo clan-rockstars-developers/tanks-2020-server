@@ -4,8 +4,17 @@
   "description": "Practic WebSockets and NodeJS server",
   "main": "src/app.js",
   "scripts": {
+    "dev": "cross-env NODE_ENV=development nodemon src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Menonro aka Nitay <nitayd2001@gmail.com>",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "text-encoding": "^0.7.0",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v16.4.0"
+  },
+  "devDependencies": {
+    "cross-env": "^6.0.3",
+    "nodemon": "^2.0.1"
+  }
 }
