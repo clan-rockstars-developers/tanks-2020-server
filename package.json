@@ -1,0 +1,11 @@
+{
+  "name": "menonro-tanks-2020",
+  "version": "0.0.1",
+  "description": "Practic WebSockets and NodeJS server",
+  "main": "src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Menonro aka Nitay <nitayd2001@gmail.com>",
+  "license": "ISC"
+}
