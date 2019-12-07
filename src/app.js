@@ -1,42 +1,46 @@
 const uWS = require('uWebSockets.js')
-const port = 9001
-const textEncoding = require('text-encoding')
-const TextDecoder = new textEncoding.TextDecoder("utf-8");
+const config = require('./config')
 
-const Tick = require('./tick')
+const PlayersController = require('./core/Menu/PlayersController')
+const MessageController = require('./core/MessagesController')
+const ActionsController = require('./core/Actions/ActionsController')
 
-let client = []
+const playersController = new PlayersController()
+const messageController = new MessageController()
+const actionsController = new ActionsController()
 
-const ticker = new Tick()
+actionsController.registerAction('register', ({name}) => {
+  console.log(name)
+})
 
 const app = uWS.App().ws('/*', {
   /* Options */
   compression: 0,
   maxPayloadLength: 16 * 1024 * 1024,
-  idleTimeout: 10,
+  idleTimeout: 300,
   /* Handlers */
   open: (ws, req) => {
-    ws.send('New client')
-    client.push(ws)
-    ticker.run(()=>client,(client)=>client.send('Hello'), 1000 / 2)
+    console.log(messageController.decode(ws.getRemoteAddress()))
+    messageController.send({action: 'init'}, playersController.connectPlayer(ws))
+    // client.push(ws)
+    // ticker.run(()=>client,(client)=>client.send('Hello'), 1000 / 2)
   },
   message: (ws, message, isBinary) => {
-    // let ok = ws.send(message, isBinary);
-    console.log(TextDecoder.decode(message))
+    const {action, data} = messageController.decode(message)
+    if (action && data) {
+      actionsController.runAction(action)(data)
+    }
   },
   drain: (ws) => {
     console.log('WebSocket backpressure: ' + ws.getBufferedAmount())
   },
   close: (ws, code, message) => {
-    client = client.filter(el=>el!==ws)
+    playersController.disconnectPlayer(ws)
     console.log('WebSocket closed')
   }
 }).any('/*', (res, req) => {
   res.end('Nothing to see here!')
-}).listen(port, (token) => {
-  if (token) {
-    console.log('Listening to port ' + port)
-  } else {
-    console.log('Failed to listen to port ' + port)
-  }
+}).listen(config.port, (token) => {
+  if (token) { console.log('Listening to port ' + config.port) }
+  else { console.log('Failed to listen to port ' + config.port) }
 })
